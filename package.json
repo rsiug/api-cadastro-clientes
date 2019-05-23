@@ -1,6 +1,6 @@
 {
-  "name": "swagger-gerenciamento-de-clientes",
-  "version": "1.0.0",
+  "name": "api-cadastro-clientes",
+  "version": "1.0.1",
   "description": "Servidor de com API para o gerenciamento de clientes.",
   "main": "index.js",
   "scripts": {
@@ -17,5 +17,18 @@
     "js-yaml": "^3.3.0",
     "mongodb": "^3.2.5",
     "swagger-tools": "^0.10.4"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsiug/api-cadastro-clientes.git"
+  },
+  "author": "Guilherme Rodrigues",
+  "bugs": {
+    "url": "https://github.com/rsiug/api-cadastro-clientes/issues"
+  },
+  "engines": {
+    "node": "10.x"
+  },
+  "homepage": "https://github.com/rsiug/api-cadastro-clientes#readme"
 }
