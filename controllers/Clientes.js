@@ -37,7 +37,8 @@ module.exports.getCliente = function getCliente (req, res, next) {
 };
 
 module.exports.getClientes = function getClientes (req, res, next) {
-  Clientes.getClientes()
+    var quantidade = req.swagger.params['quantidade'].value;
+    Clientes.getClientes(quantidade)
     .then(function (response) {
       utils.writeJson(res, response);
     })

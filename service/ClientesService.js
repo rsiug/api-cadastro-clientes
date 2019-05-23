@@ -73,9 +73,15 @@ exports.getCliente = function (id) {
  *
  * returns List
  **/
-exports.getClientes = function () {
+exports.getClientes = function (quantidade) {
     return new Promise(function (resolve, reject) {
-        resolve(clientes);
+        if (quantidade) {
+            if (quantidade > clientes.length)
+                quantidade = clientes.length;
+            resolve(clientes.slice(0, quantidade));
+        }
+        else
+            resolve(clientes);
     });
 }
 

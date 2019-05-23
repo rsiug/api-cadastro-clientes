@@ -22,7 +22,12 @@ paths:
       operationId: "getClientes"
       produces:
       - "application/json"
-      parameters: []
+      parameters:
+      - name: "quantidade"
+        in: "query"
+        description: "Quantidade de clientes a serem retornados"
+        required: false
+        type: "integer"
       responses:
         200:
           description: "Sucesso"
