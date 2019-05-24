@@ -1,21 +1,40 @@
-'use strict';
+"use strict";
+const low = require("lowdb");
+const FileSync = require("lowdb/adapters/FileSync");
 
-var clientes = new Array();
+const adapter = new FileSync("tools/db.json");
+const db = low(adapter);
 
+async function getLastId() {
+  const id = db
+    .get("clientes")
+    .orderBy("id", "desc")
+    .value()[0].id;
+  return (await (id || 0)) + 1;
+}
 /**
  * Insere um novo cliente
  *
  * cliente NewCliente Objeto cliente para inserção
  * no response value expected for this operation
  **/
-exports.addCliente = function (cliente) {
-    return new Promise(function (resolve, reject) {
-        cliente.id = clientes.length + 1;
-        clientes.push(cliente);
-        resolve(cliente);
-    });
-}
+exports.addCliente = function(cliente) {
+  return new Promise(async function(resolve, reject) {
+    cliente.id = await getLastId();
+    console.log("id", cliente.id);
 
+    db.get("clientes")
+      .push({
+        id: cliente.id,
+        nome: cliente.nome,
+        dataNascimento: cliente.dataNascimento,
+        filhos: cliente.filhos,
+        endereco: cliente.endereco
+      })
+      .write();
+    resolve(cliente);
+  });
+};
 
 /**
  * Exclui um cliente a partir do ID
@@ -24,26 +43,25 @@ exports.addCliente = function (cliente) {
  * id Long ID do cliente que será excluído
  * no response value expected for this operation
  **/
-exports.deleteCliente = function (id) {
-    return new Promise(function (resolve, reject) {
-        var findClient = clientes.find((c) => c.id == id);
-        if (findClient) {
-            for (var i = 0; i < clientes.length; i++) {
-                if (clientes[i].id === findClient.id) {
-                    clientes.splice(i, 1);
-                }
-            }
-            resolve();
-        }
-        else {
-            reject({
-                code: 404,
-                message: "Client not found"
-            });
-        }
-    });
-}
-
+exports.deleteCliente = function(id) {
+  return new Promise(function(resolve, reject) {
+    const exists = db
+      .get("clientes")
+      .find({ id: id })
+      .value();
+    if (exists) {
+      db.get("clientes")
+        .remove({ id: id })
+        .value();
+      resolve();
+    } else {
+      reject({
+        code: 404,
+        message: "Cliente não encontrado"
+      });
+    }
+  });
+};
 
 /**
  * Busca um cliente pelo ID
@@ -52,39 +70,39 @@ exports.deleteCliente = function (id) {
  * id Long ID do cliente a ser retornado
  * returns cliente
  **/
-exports.getCliente = function (id) {
-    return new Promise(function (resolve, reject) {
-
-        var findClient = clientes.find((c) => c.id == id);
-        if (findClient)
-            resolve(findClient); 
-        else {
-            reject({
-                code: 404,
-                message: "Client not found"
-            });
-        }
-    });
-}
-
+exports.getCliente = function(id) {
+  return new Promise(function(resolve, reject) {
+    var cliente = db
+      .get("clientes")
+      .find({ id: id })
+      .value();
+    if (cliente) resolve(cliente);
+    else {
+      reject({
+        code: 404,
+        message: "Cliente não encontrado"
+      });
+    }
+  });
+};
 
 /**
  * Retorna todos os clientes cadastrados
  *
  * returns List
  **/
-exports.getClientes = function (quantidade) {
-    return new Promise(function (resolve, reject) {
-        if (quantidade) {
-            if (quantidade > clientes.length)
-                quantidade = clientes.length;
-            resolve(clientes.slice(0, quantidade));
-        }
-        else
-            resolve(clientes);
-    });
-}
-
+exports.getClientes = quantidade => {
+  return new Promise((res, rej) => {
+    const clientes = db
+      .get("clientes")
+      .take(quantidade)
+      .write();
+    res(clientes);
+  }).catch(err => {
+    console.error(err.message);
+    throw err;
+  });
+};
 
 /**
  * Atualiza um cliente a partir dos dados do formulário
@@ -94,24 +112,23 @@ exports.getClientes = function (quantidade) {
  * cliente NewCliente Objeto cliente para atualização
  * no response value expected for this operation
  **/
-exports.updateCliente = function (id, cliente) {
-    return new Promise(function (resolve, reject) {
-        var findClient = clientes.find((c) => c.id == id);
-        if (findClient) {
-            for (var i = 0; i < clientes.length; i++) {
-                if (clientes[i].id === findClient.id) {
-                    cliente.id = findClient.id;
-                    clientes[i] = cliente;
-                }
-            }
-            resolve(cliente);
-        }
-        else {
-            reject({
-                code: 404,
-                message: "Client not found"
-            });
-        }
-    });
-}
-
+exports.updateCliente = function(id, cliente) {
+  return new Promise(function(resolve, reject) {
+    const exists = db
+      .get("clientes")
+      .filter({ id: id })
+      .value();
+    if (exists) {
+      db.get("clientes")
+        .find({ id: id })
+        .assign({ ...cliente })
+        .value();
+      resolve(cliente);
+    } else {
+      reject({
+        code: 404,
+        message: "Cliente não encontrado"
+      });
+    }
+  });
+};
