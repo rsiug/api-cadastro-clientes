@@ -93,14 +93,21 @@ exports.getCliente = function(id) {
  **/
 exports.getClientes = quantidade => {
   return new Promise((res, rej) => {
-    const clientes = db
-      .get("clientes")
-      .take(quantidade)
-      .write();
-    res(clientes);
+    if (!quantidade) {
+      const clientes = db.get("clientes").write();
+      res(clientes);
+    } else {
+      const clientes = db
+        .get("clientes")
+        .take(quantidade)
+        .write();
+      res(clientes);
+    }
   }).catch(err => {
-    console.error(err.message);
-    throw err;
+    reject({
+      code: 404,
+      message: "Não foi possivel realizar a consulta:" + err.message
+    });
   });
 };
 
