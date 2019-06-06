@@ -12,6 +12,7 @@ tags:
   description: "API referente a gerenciamento de clientes"
 schemes:
 - "https"
+- "http"
 paths:
   /clientes:
     get:
